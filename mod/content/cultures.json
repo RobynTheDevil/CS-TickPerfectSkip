@@ -1,0 +1,14 @@
+{
+  "cultures": [
+    {
+      "id": "en",
+      "uilabels$add": {
+        "UI_KB_TICKPERFECTSKIP": "Tick Perfect Skip (Card/Verb)",
+        "UI_OPT_SKIPSPEED": "How Fast Skipping Appears",
+        "UI_OPT_SKIPSPEED_0": "Instant",
+        "UI_OPT_SKIPSPEED_1": "Fast",
+        "UI_OPT_SKIPSPEED_2": "Slow"
+      }
+    }
+  ]
+}

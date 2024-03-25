@@ -1,0 +1,25 @@
+{
+    "settings": [
+        {
+		    "id": "KeyTickPerfectSkip",
+		    "tabid": "UI_KEYBINDS",
+		    "hint": "UI_KB_TICKPERFECTSKIP",
+		    "datatype": "String",
+		    "defaultvalue": "<Keyboard>/T"
+	    },
+        {
+            "id": "SkipSpeed",
+            "tabid": "UI_GAMEPLAY",
+            "hint": "UI_OPT_SKIPSPEED",
+            "minvalue": 0,
+            "maxvalue": 2,
+            "defaultvalue": "1",
+            "datatype": "Int32",
+            "valuelabels": {
+                "0": "UI_OPT_SKIPSPEED_0",
+                "1": "UI_OPT_SKIPSPEED_1",
+                "2": "UI_OPT_SKIPSPEED_2"
+            }
+        }
+    ]
+}
