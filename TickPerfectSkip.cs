@@ -18,19 +18,18 @@ public class TickPerfectSkip : MonoBehaviour
   public static KeybindTracker keySkip;
   private int _skipTicks = 0;
 
-  public void Start() => SceneManager.sceneLoaded += AwakePrefix;
+  public void Start() => SceneManager.sceneLoaded += Load;
 
-  public void OnDestroy() => SceneManager.sceneLoaded -= AwakePrefix;
+  public void OnDestroy() => SceneManager.sceneLoaded -= Load;
 
   public async void Update()
   {
-    bool inputEnabled = !Watchman.Get<LocalNexus>().PlayerInputDisabled();
-    if (inputEnabled) {
-        if (TickPerfectSkip.keySkip.wasPressedThisFrame)
-        {
-            this._skipTicks += (int)((double)(TheWheel.GetNextCardTime() * 100) + 0.01);
-            NoonUtility.LogWarning(string.Format("TickPerfectSkip: Ticks {0}", this._skipTicks) );
-        }
+    if (Watchman.Get<LocalNexus>() == null || Watchman.Get<LocalNexus>().PlayerInputDisabled())
+        return;
+    if (TickPerfectSkip.keySkip.wasPressedThisFrame())
+    {
+        this._skipTicks += (int)((double)(TheWheel.GetNextCardTime() * 100) + 0.01);
+        NoonUtility.Log(string.Format("TickPerfectSkip: Ticks {0}", this._skipTicks) );
     }
 
     await Settler.AwaitSettled();
@@ -53,6 +52,7 @@ public class TickPerfectSkip : MonoBehaviour
         } else if (this._skipTicks - TickPerfectSkip.skipSpeed.current < ticks) {
             return false;
         } else {
+            NoonUtility.Log(string.Format("TickPerfectSkip: Skip {0}", 0.01 * ticks) );
             Watchman.Get<Heart>().Beat((float)(0.01 * ticks), 0.5f);
         }
         this._skipTicks -= ticks;
@@ -65,13 +65,13 @@ public class TickPerfectSkip : MonoBehaviour
     NoonUtility.Log("TickPerfectSkip: Initialised");
   }
 
-  private void AwakePrefix(Scene scene, LoadSceneMode mode)
+  private void Load(Scene scene, LoadSceneMode mode)
   {
     if (!(scene.name == "S3Menu"))
       return;
     try
     {
-        TickPerfectSkip.skipSpeed = new ValueTracker<int>("SkipSpeed", new int[3] { 0, 10, 50 });
+        TickPerfectSkip.skipSpeed = new ValueTracker<int>("SkipSpeed", new int[3] { 0, 10, 70 });
         TickPerfectSkip.keySkip = new KeybindTracker("KeyTickPerfectSkip");
     }
     catch (Exception ex)
