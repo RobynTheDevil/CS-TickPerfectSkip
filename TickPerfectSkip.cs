@@ -26,7 +26,7 @@ public class TickPerfectSkip : MonoBehaviour
   {
     bool inputEnabled = !Watchman.Get<LocalNexus>().PlayerInputDisabled();
     if (inputEnabled) {
-        if (TickPerfectSkip.keySkip.wasPressedThisFrame())
+        if (TickPerfectSkip.keySkip.wasPressedThisFrame)
         {
             this._skipTicks += (int)((double)(TheWheel.GetNextCardTime() * 100) + 0.01);
             NoonUtility.LogWarning(string.Format("TickPerfectSkip: Ticks {0}", this._skipTicks) );
