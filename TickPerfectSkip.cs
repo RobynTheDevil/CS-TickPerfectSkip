@@ -14,42 +14,69 @@ using UnityEngine.SceneManagement;
 
 public class TickPerfectSkip : MonoBehaviour
 {
-  public static ValueTracker<int> skipSpeed;
-  public static KeybindTracker keySkip;
-  private int _skipTicks = 0;
+    public static bool started = false;
+    public static ValueTracker<int> skipSpeed;
+    public static KeybindTracker keySkip;
+    private int _skipTicks = 0;
 
-  public void Start() => SceneManager.sceneLoaded += Load;
+    public void Start() => SceneManager.sceneLoaded += Load;
 
-  public void OnDestroy() => SceneManager.sceneLoaded -= Load;
+    public void OnDestroy() => SceneManager.sceneLoaded -= Load;
 
-  public async void Update()
-  {
-    if (Watchman.Get<LocalNexus>() == null || Watchman.Get<LocalNexus>().PlayerInputDisabled())
-        return;
-    if (TickPerfectSkip.keySkip.wasPressedThisFrame())
+    private void Load(Scene scene, LoadSceneMode mode)
     {
-        this._skipTicks += (int)((double)(TheWheel.GetNextCardTime() * 100) + 0.01);
-        NoonUtility.Log(string.Format("TickPerfectSkip: Ticks {0}", this._skipTicks) );
+        try
+        {
+            if (!started) {
+                skipSpeed = new ValueTracker<int>("SkipSpeed", new int[3] { 0, 10, 70 });
+                keySkip = new KeybindTracker("KeyTickPerfectSkip");
+                started = true;
+            } else {
+                skipSpeed.Subscribe();
+                keySkip.Subscribe();
+            }
+        }
+        catch (Exception ex)
+        {
+          NoonUtility.LogException(ex);
+        }
+        NoonUtility.Log("TickPerfectSkip: Trackers Started");
     }
 
-    await Settler.AwaitSettled();
-    if (this._skipTicks > 0) {
-        while (this._skipTicks > 0) {
-            bool _ = TrySkip(400)
-                || TrySkip(100)
-                || TrySkip(25)
-                || TrySkip(1);
-            if (TickPerfectSkip.skipSpeed.current > 0f) {break;}
-            await Settler.AwaitSettled();
+    public static void Initialise()
+    {
+        new GameObject().AddComponent<TickPerfectSkip>();
+        NoonUtility.Log("TickPerfectSkip: Initialised");
+    }
+
+    public async void Update()
+    {
+        if (Watchman.Get<LocalNexus>() == null || Watchman.Get<LocalNexus>().PlayerInputDisabled())
+            return;
+        if (keySkip.wasPressedThisFrame())
+        {
+            this._skipTicks += (int)((double)(TheWheel.GetNextCardTime() * 100) + 0.01);
+            NoonUtility.Log(string.Format("TickPerfectSkip: Ticks {0}", this._skipTicks) );
+        }
+
+        await Settler.AwaitSettled();
+        if (this._skipTicks > 0) {
+            while (this._skipTicks > 0) {
+                bool _ = TrySkip(400)
+                    || TrySkip(100)
+                    || TrySkip(25)
+                    || TrySkip(1);
+                if (skipSpeed.current > 0f) {break;}
+                await Settler.AwaitSettled();
+            }
         }
     }
-  }
 
     public bool TrySkip(int ticks)
     {
         if (ticks == 1) {
             Watchman.Get<Heart>().Beat(0.015625f, 0.0f);
-        } else if (this._skipTicks - TickPerfectSkip.skipSpeed.current < ticks) {
+        } else if (this._skipTicks - skipSpeed.current < ticks) {
             return false;
         } else {
             NoonUtility.Log(string.Format("TickPerfectSkip: Skip {0}", 0.01 * ticks) );
@@ -58,27 +85,5 @@ public class TickPerfectSkip : MonoBehaviour
         this._skipTicks -= ticks;
         return true;
     }
-
-  public static void Initialise()
-  {
-    new GameObject().AddComponent<TickPerfectSkip>();
-    NoonUtility.Log("TickPerfectSkip: Initialised");
-  }
-
-  private void Load(Scene scene, LoadSceneMode mode)
-  {
-    if (!(scene.name == "S3Menu"))
-      return;
-    try
-    {
-        TickPerfectSkip.skipSpeed = new ValueTracker<int>("SkipSpeed", new int[3] { 0, 10, 70 });
-        TickPerfectSkip.keySkip = new KeybindTracker("KeyTickPerfectSkip");
-    }
-    catch (Exception ex)
-    {
-      NoonUtility.LogException(ex);
-    }
-    NoonUtility.Log("TickPerfectSkip: Trackers Started");
-  }
 
 }
