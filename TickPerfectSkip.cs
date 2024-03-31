@@ -76,7 +76,7 @@ public class TickPerfectSkip : MonoBehaviour
     {
         if (ticks == 1) {
             Watchman.Get<Heart>().Beat(0.015625f, 0.0f);
-        } else if (this._skipTicks - skipSpeed.current < ticks) {
+        } else if (this._skipTicks - skipSpeed.current - 1 < ticks) {
             return false;
         } else {
             NoonUtility.Log(string.Format("TickPerfectSkip: Skip {0}", 0.01 * ticks) );
